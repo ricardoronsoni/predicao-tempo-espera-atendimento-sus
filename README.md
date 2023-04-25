@@ -8,7 +8,7 @@ Comparar a performance de algoritmos de machine learning para predição do temp
 
 # Aspectos metodológicos
 ## Seleção dos pacientes
-Foram selecionadas apenas as solicitações de pacientes em início de tratamento, pois a grande maioria dos dados disponíveis do CEAF referem-se ao pacientes já em continuidade de tratamento. Considerou-se pacientes novos aqueles que não possuiam APAC com quantidade aprovada para o referente CID-10 ou procedimento da APAC nos últimos nove meses.   
+Foram selecionadas apenas as solicitações de pacientes em início de tratamento. Considerou-se pacientes novos aqueles que não possuiam APAC com quantidade aprovada para o referente CID-10 ou procedimento da APAC nos últimos nove meses.   
 ## Coleta dos dados
 A coleta de dados foi realizada em 10 de abril de 2023 e foram utilizados os registros de APAC provenientes do sistema Sistema de Informações Ambulatoriais do SUS (SIA/SUS). Foram selecionadas as APAC que com a data de solicitação entre janeiro a dezembro de 2022, no estado de Santa Catarina.  
 Para a obtenção dos dados no SIA/SUS foi utilizado um programa disponibilizado no GitHub (https://github.com/ricardoronsoni/importar-apac-ceaf) que sistematiza o download dos dados do FTP do Datasus e persiste os mesmos em um banco de dados relacional.  
@@ -78,25 +78,5 @@ Foi realizada uma avaliação no rol de dados disponíveis no SIA/SUS para ident
 - data_autorizacao  
 - competencia_dispensacao  
 
-## Pré-processamento
-O SIA/SUS disponibiliza os seus dados de forma individualizada, sendo que para obter os dados para o presente estudo foi preciso somar as quantidades dispensadas de cada medicamento e agrupá-los por competência, formando assim uma série histórica de dispensação.  
-Adicionalmente, o SIA/SUS identifica os medicamentos do CEAF pelo código de procedimento do Sistema de Gerenciamento da Tabela de Procedimentos, Medicamentos e OPM do SUS (SIGTAP). Sendo assim, foi necessário acessar o sítio eletrônico do SIGTAP (http://sigtap.datasus.gov.br/tabela-unificada/app/sec/inicio.jsp) para proceder com a pesquisa dos códigos de procedimento para cada medicamento selecionado. Essa pesquisa foi realizada em 23 de novembro de 2022.  
-Foram localizados os seguintes códigos de procedimento:  
-| Medicamento                       | Procedimento |
-|-----------------------------------|--------------|
-| Filgrastim 300mcg injetável       | 0604250010   |
-| Golimumabe 50mg solução injetável | 0604380089   |
-| Imiglucerase 400U injetável           | 0604240031   | 
-Os dados foram exportados do banco de dados por meio do seguinte SQL (Structured Query Language), onde a variável `$1` corresponde ao código de procedimento de cada medicamento. Foi gerado um arquivo CSV para cada medicamento.  
-```
-select 
-	m.competencia_dispensacao competencia, 
-	sum(m.quantidade_aprovada) qtd_dispensada
-from apac.medicamento m 
-where 
-	m.competencia_dispensacao between to_date('2019-01-01', 'YYYY-MM-DD') and to_date('2021-12-31', 'YYYY-MM-DD')
-	and m.procedimento = $1
-group by 
-	m.competencia_dispensacao
-order by 1;
-```
+# Pré-processamento e Resultados
+Todas as informações sobre o pré-processamento e resultados obtidos estão descritos no arquivo [Jupyter Notebook](tempo_acesso.ipynb) 
